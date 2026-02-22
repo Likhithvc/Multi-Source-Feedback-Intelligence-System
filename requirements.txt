@@ -1,0 +1,13 @@
+pandas
+numpy
+matplotlib
+seaborn
+google-play-scraper
+praw
+nltk
+transformers
+torch
+streamlit
+reportlab
+sqlalchemy
+python-dotenv
