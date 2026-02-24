@@ -3,7 +3,6 @@ numpy
 matplotlib
 seaborn
 google-play-scraper
-praw
 nltk
 transformers
 torch

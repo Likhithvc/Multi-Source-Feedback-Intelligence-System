@@ -20,11 +20,10 @@ from services.report_service import generate_pdf_report
 
 # Configuration
 GOOGLE_PLAY_APP_ID = "com.whatsapp"  # Example app
-REDDIT_KEYWORD = "app feedback"
 
 
 def fetch_all_feedback() -> pd.DataFrame:
-    """Fetch feedback from all sources and combine."""
+    """Fetch feedback from Google Play Store."""
     all_data = []
     
     # Fetch Google Play reviews
@@ -37,20 +36,6 @@ def fetch_all_feedback() -> pd.DataFrame:
             print(f"  Fetched {len(gp_reviews)} Google Play reviews")
     except Exception as e:
         print(f"  Error fetching Google Play reviews: {e}")
-    
-    # Fetch Reddit posts (if implemented)
-    print("Fetching Reddit posts...")
-    try:
-        from fetchers.reddit import fetch_reddit_posts
-        reddit_posts = fetch_reddit_posts(REDDIT_KEYWORD, limit=100)
-        if not reddit_posts.empty:
-            reddit_posts = reddit_posts.rename(columns={'post_id': 'id', 'score': 'rating'})
-            all_data.append(reddit_posts)
-            print(f"  Fetched {len(reddit_posts)} Reddit posts")
-    except (ImportError, AttributeError) as e:
-        print(f"  Reddit fetcher not implemented, skipping...")
-    except Exception as e:
-        print(f"  Error fetching Reddit posts: {e}")
     
     # Combine all data
     if all_data:
