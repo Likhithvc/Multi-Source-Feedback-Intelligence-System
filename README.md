@@ -1,10 +1,23 @@
-# Feedback Intelligence System
+<div align="center">
 
-A production-ready feedback intelligence pipeline that collects user reviews from Google Play Store, performs sentiment analysis using both rule-based and transformer models, categorizes feedback, calculates priority scores, and generates actionable insights through an interactive dashboard and PDF reports.
+# 📊 Feedback Intelligence System
+
+**Transform raw user feedback into actionable product insights**
+
+![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=flat&logo=python&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-FF4B4B?style=flat&logo=streamlit&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?style=flat&logo=sqlite&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green?style=flat)
+
+</div>
 
 ---
 
-## Overview
+A production-ready feedback intelligence pipeline that collects user reviews from Google Play Store, performs sentiment analysis using both rule-based and transformer models, categorizes feedback, calculates priority scores, and generates actionable insights through an interactive dashboard and PDF reports.
+
+<br>
+
+## 🚀 Overview
 
 This system automates the process of collecting, analyzing, and visualizing user feedback at scale. It fetches reviews from Google Play Store, applies natural language processing techniques to understand sentiment and categorize issues, then prioritizes feedback based on negativity, frequency, and recency. The results are stored in a SQLite database, exported to CSV, and visualized through an interactive Streamlit dashboard.
 
@@ -14,23 +27,29 @@ This system automates the process of collecting, analyzing, and visualizing user
 - Customer success teams identifying recurring pain points
 - Stakeholders reviewing weekly feedback summaries via PDF reports
 
----
-
-## Key Features
-
-- **Google Play Store Integration** — Fetches up to 1000 reviews per run using the official scraper API
-- **Dual Sentiment Analysis** — Combines NLTK VADER (fast, rule-based) with HuggingFace DistilBERT (accurate, transformer-based)
-- **Keyword-Based Categorization** — Classifies feedback into Bug, Feature Request, Performance, UI/UX, or Other
-- **Priority Scoring Algorithm** — Multiplicative decay formula prioritizing recent, negative, frequent issues
-- **Trend Detection** — Identifies improving, declining, or stable sentiment patterns over time
-- **SQLite Persistence** — Stores all processed feedback with full schema
-- **CSV Export** — Timestamped exports for external analysis
-- **PDF Reports** — Auto-generated weekly summaries with sentiment breakdown and top issues
-- **Interactive Dashboard** — Streamlit-based UI with filters, charts, and data tables
+<br>
 
 ---
 
-## System Architecture
+## ✨ Key Features
+
+| Feature | Description |
+|---------|-------------|
+| **Google Play Store Integration** | Fetches up to 1000 reviews per run using the official scraper API |
+| **Dual Sentiment Analysis** | Combines NLTK VADER (fast, rule-based) with HuggingFace DistilBERT (accurate, transformer-based) |
+| **Keyword-Based Categorization** | Classifies feedback into Bug, Feature Request, Performance, UI/UX, or Other |
+| **Priority Scoring Algorithm** | Multiplicative decay formula prioritizing recent, negative, frequent issues |
+| **Trend Detection** | Identifies improving, declining, or stable sentiment patterns over time |
+| **SQLite Persistence** | Stores all processed feedback with full schema |
+| **CSV Export** | Timestamped exports for external analysis |
+| **PDF Reports** | Auto-generated weekly summaries with sentiment breakdown and top issues |
+| **Interactive Dashboard** | Streamlit-based UI with filters, charts, and data tables |
+
+<br>
+
+---
+
+## 🧠 System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -73,9 +92,11 @@ This system automates the process of collecting, analyzing, and visualizing user
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
+<br>
+
 ---
 
-## Tech Stack
+## 🛠 Tech Stack
 
 | Component | Technology |
 |-----------|------------|
@@ -89,75 +110,84 @@ This system automates the process of collecting, analyzing, and visualizing user
 | Visualization | Matplotlib |
 | PDF Generation | ReportLab |
 
+<br>
+
 ---
 
-## Folder Structure
+## 📁 Folder Structure
 
 ```
 feedback-intelligence-system/
 │
-├── app.py                      # Main entry point
-├── requirements.txt            # Python dependencies
-├── README.md                   # This file
-├── .gitignore                  # Git ignore rules
+├── app.py                       # Main entry point
+├── requirements.txt             # Python dependencies
+├── README.md                    # This file
+├── .gitignore                   # Git ignore rules
 │
 ├── src/
 │   ├── fetchers/
-│   │   ├── google_play.py      # Google Play Store scraper
-│   │   ├── apple_store.py      # Apple App Store scraper (available)
-│   │   └── csv_loader.py       # CSV file loader
+│   │   ├── google_play.py       # Google Play Store scraper
+│   │   ├── apple_store.py       # Apple App Store scraper (available)
+│   │   └── csv_loader.py        # CSV file loader
 │   │
 │   ├── processing/
-│   │   ├── cleaner.py          # Text preprocessing
-│   │   ├── sentiment.py        # VADER + Transformer sentiment
-│   │   └── categorizer.py      # Keyword-based categorization
+│   │   ├── cleaner.py           # Text preprocessing
+│   │   ├── sentiment.py         # VADER + Transformer sentiment
+│   │   └── categorizer.py       # Keyword-based categorization
 │   │
 │   ├── intelligence/
-│   │   ├── trend.py            # Sentiment trend analysis
-│   │   └── priority.py         # Priority scoring algorithm
+│   │   ├── trend.py             # Sentiment trend analysis
+│   │   └── priority.py          # Priority scoring algorithm
 │   │
 │   ├── database/
-│   │   ├── db.py               # SQLAlchemy engine & session
-│   │   └── models.py           # Feedback ORM model
+│   │   ├── db.py                # SQLAlchemy engine & session
+│   │   └── models.py            # Feedback ORM model
 │   │
 │   ├── reports/
-│   │   └── pdf_report.py       # PDF report generator (unused)
+│   │   └── pdf_report.py        # PDF report generator (unused)
 │   │
 │   └── services/
-│       ├── pipeline.py         # Main orchestration logic
-│       ├── storage_service.py  # Database & CSV storage
-│       ├── trend_service.py    # Trend analysis wrapper
-│       └── report_service.py   # PDF report generation
+│       ├── pipeline.py          # Main orchestration logic
+│       ├── storage_service.py   # Database & CSV storage
+│       ├── trend_service.py     # Trend analysis wrapper
+│       └── report_service.py    # PDF report generation
 │
 ├── dashboard/
-│   └── app.py                  # Streamlit dashboard
+│   └── app.py                   # Streamlit dashboard
 │
 └── data/
-    ├── feedback.db             # SQLite database (generated)
+    ├── feedback.db              # SQLite database (generated)
     ├── processed_feedback_*.csv # Exported CSV files (generated)
-    └── weekly_report_*.pdf     # PDF reports (generated)
+    └── weekly_report_*.pdf      # PDF reports (generated)
 ```
+
+<br>
 
 ---
 
-## Installation
+## ⚙️ Installation
 
 ### Prerequisites
-- Python 3.10 or higher
+
+- Python **3.10** or higher
 - pip package manager
 
 ### Steps
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/yourusername/feedback-intelligence-system.git
    cd feedback-intelligence-system
    ```
 
 2. **Create virtual environment**
+
    ```bash
    python -m venv myenv
+   ```
    
+   ```bash
    # Windows
    myenv\Scripts\activate
    
@@ -166,27 +196,34 @@ feedback-intelligence-system/
    ```
 
 3. **Install dependencies**
+
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Download NLTK data** (happens automatically on first run)
+4. **Download NLTK data** *(happens automatically on first run)*
+
    ```bash
    python -c "import nltk; nltk.download('vader_lexicon')"
    ```
 
+<br>
+
 ---
 
-## How to Run
+## ▶️ How to Run
 
 ### Run the Pipeline
+
 Fetches reviews, processes them, stores to database, exports CSV, and generates PDF report.
 
 ```bash
 python app.py
 ```
 
-**Expected output:**
+<details>
+<summary><b>View expected output</b></summary>
+
 ```
 ==================================================
 Feedback Intelligence System
@@ -221,24 +258,29 @@ Pipeline complete!
 ==================================================
 ```
 
+</details>
+
 ### Run the Dashboard
+
 Interactive web interface for exploring feedback data.
 
 ```bash
 streamlit run dashboard/app.py
 ```
 
-Opens at `http://localhost:8501`
+> Opens at `http://localhost:8501`
+
+<br>
 
 ---
 
-## Output Artifacts
+## 📦 Output Artifacts
 
 | Artifact | Location | Description |
 |----------|----------|-------------|
-| SQLite Database | `data/feedback.db` | Persistent storage of all processed feedback |
-| CSV Export | `data/processed_feedback_YYYYMMDD_HHMMSS.csv` | Timestamped export for analysis |
-| PDF Report | `data/weekly_report_YYYYMMDD.pdf` | Summary report with charts |
+| **SQLite Database** | `data/feedback.db` | Persistent storage of all processed feedback |
+| **CSV Export** | `data/processed_feedback_YYYYMMDD_HHMMSS.csv` | Timestamped export for analysis |
+| **PDF Report** | `data/weekly_report_YYYYMMDD.pdf` | Summary report with charts |
 
 ### Database Schema
 
@@ -256,9 +298,11 @@ CREATE TABLE feedback (
 );
 ```
 
+<br>
+
 ---
 
-## Dashboard Capabilities
+## 📊 Dashboard Capabilities
 
 | Feature | Description |
 |---------|-------------|
@@ -272,9 +316,11 @@ CREATE TABLE feedback (
 | **Top Issues Table** | Categories ranked by frequency with avg scores |
 | **High Priority Table** | Top 10 urgent feedback items |
 
+<br>
+
 ---
 
-## Design Decisions
+## 💡 Design Decisions
 
 ### Why VADER + Transformer?
 
@@ -284,7 +330,8 @@ CREATE TABLE feedback (
 ### Why Multiplicative Priority Decay?
 
 The priority formula `(negativity × recency_weight × 80) + (frequency × 3)` uses multiplication rather than addition because:
-- A very negative review from 30+ days ago should NOT remain high priority
+
+- A very negative review from 30+ days ago should **NOT** remain high priority
 - Recency acts as a decay factor: even strong negativity fades over time
 - This prevents stale issues from dominating the priority list
 
@@ -292,20 +339,26 @@ The priority formula `(negativity × recency_weight × 80) + (frequency × 3)` u
 
 Reviews are distributed across the last 7 days using `df.index % 7` to demonstrate the trend analysis feature. In production, actual review timestamps would be preserved.
 
----
-
-## Limitations
-
-- **Single Data Source** — Currently only fetches from Google Play Store
-- **English Only** — Sentiment models trained on English text
-- **Keyword Categorization** — Simple keyword matching; no ML-based classification
-- **No Real-time Updates** — Batch processing only; no streaming
-- **Local Storage** — SQLite not suitable for distributed deployments
-- **No Authentication** — Dashboard has no access control
+<br>
 
 ---
 
-## Future Improvements
+## ⚠️ Limitations
+
+| Limitation | Details |
+|------------|---------|
+| **Single Data Source** | Currently only fetches from Google Play Store |
+| **English Only** | Sentiment models trained on English text |
+| **Keyword Categorization** | Simple keyword matching; no ML-based classification |
+| **No Real-time Updates** | Batch processing only; no streaming |
+| **Local Storage** | SQLite not suitable for distributed deployments |
+| **No Authentication** | Dashboard has no access control |
+
+<br>
+
+---
+
+## 🔮 Future Improvements
 
 - [ ] Add Apple App Store fetcher integration
 - [ ] Implement Reddit/Twitter social media fetchers
@@ -317,18 +370,28 @@ Reviews are distributed across the last 7 days using `df.index % 7` to demonstra
 - [ ] Implement A/B comparison between app versions
 - [ ] Add export to Google Sheets / Notion
 
----
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+<br>
 
 ---
 
-## Author
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+<br>
+
+---
+
+## 👤 Author
 
 Built as a portfolio project demonstrating end-to-end data engineering and NLP capabilities.
 
+<br>
+
 ---
 
+<div align="center">
+
 *Last updated: February 2026*
+
+</div>
