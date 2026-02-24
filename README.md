@@ -384,7 +384,11 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 👤 Author
 
-Built as a portfolio project demonstrating end-to-end data engineering and NLP capabilities.
+**Likhith V C**
+
+- 📧 Email: likhithvc21@gmail.com
+- 🐙 GitHub: [@likhithvc](https://github.com/likhithvc)
+- 💼 LinkedIn: [Likhith V C](https://linkedin.com/in/likhithvc)
 
 <br>
 
