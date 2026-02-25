@@ -13,13 +13,13 @@
 
 ---
 
-A production-ready feedback intelligence pipeline that collects user reviews from multiple sources (Google Play Store and external CSV uploads), performs sentiment analysis using both rule-based and transformer models, categorizes feedback, calculates priority scores, and generates actionable insights through an interactive dashboard and PDF reports.
+A production-ready feedback intelligence pipeline that collects user reviews from multiple sources (Google Play Store, HuggingFace public datasets, and external CSV uploads), performs sentiment analysis using both rule-based and transformer models, categorizes feedback, calculates priority scores, and generates actionable insights through an interactive dashboard and PDF reports.
 
 <br>
 
 ## 🚀 Overview
 
-This system automates the process of collecting, analyzing, and visualizing user feedback at scale. It fetches reviews from Google Play Store and imports feedback from external CSV files, applies natural language processing techniques to understand sentiment and categorize issues, then prioritizes feedback based on negativity, frequency, and recency. The results are stored in a SQLite database, exported to CSV, and visualized through an interactive Streamlit dashboard.
+This system automates the process of collecting, analyzing, and visualizing user feedback at scale. It fetches reviews from Google Play Store, loads public review datasets from HuggingFace, and imports feedback from external CSV files. It applies natural language processing techniques to understand sentiment and categorize issues, then prioritizes feedback based on negativity, frequency, and recency. The results are stored in a SQLite database, exported to CSV, and visualized through an interactive Streamlit dashboard.
 
 **Use Cases:**
 - Product managers tracking user sentiment trends
@@ -36,6 +36,7 @@ This system automates the process of collecting, analyzing, and visualizing user
 | Feature | Description |
 |---------|-------------|
 | **Google Play Store Integration** | Fetches up to 1000 reviews per run using the official scraper API |
+| **HuggingFace Dataset Integration** | Loads public review datasets (amazon_polarity) for benchmarking and scalability testing |
 | **CSV Upload Support** | Import feedback from external CSV files for batch processing |
 | **Multi-Source Ingestion** | Combines data from all sources using pandas.concat() with proper source tracking |
 | **Dual Sentiment Analysis** | Combines NLTK VADER (fast, rule-based) with HuggingFace DistilBERT (accurate, transformer-based) |
@@ -58,18 +59,18 @@ This system automates the process of collecting, analyzing, and visualizing user
 │                        FEEDBACK INTELLIGENCE SYSTEM                  │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                      │
-│   ┌──────────────┐    ┌──────────────┐                               │
-│   │ Google Play  │    │  CSV Upload  │                               │
-│   │  (Live API)  │    │   (Batch)    │                               │
-│   └──────┬───────┘    └──────┬───────┘                               │
-│          │                   │                                       │
-│          └─────────┬─────────┘                                       │
-│                    ▼                                                 │
-│          ┌──────────────────┐                                        │
-│          │  pandas.concat() │                                        │
-│          │  (Merge Sources) │                                        │
-│          └────────┬─────────┘                                        │
-│                   ▼                                                  │
+│   ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │
+│   │ Google Play  │  │  HuggingFace │  │  CSV Upload  │              │
+│   │  (Live API)  │  │  (Dataset)   │  │   (Batch)    │              │
+│   └──────┬───────┘  └──────┬───────┘  └──────┬───────┘              │
+│          │                 │                 │                       │
+│          └────────────┬────┴────────────────┘                        │
+│                       ▼                                              │
+│             ┌──────────────────┐                                     │
+│             │  pandas.concat() │                                     │
+│             │  (Merge Sources) │                                     │
+│             └────────┬─────────┘                                     │
+│                      ▼                                               │
 │   ┌──────────────┐    ┌──────────────┐    ┌──────────────┐          │
 │   │   Cleaner    │───▶│  Sentiment   │───▶│  Categorizer │          │
 │   │  (text prep) │    │  (VADER +    │    │  (keywords)  │          │
@@ -122,28 +123,37 @@ This system automates the process of collecting, analyzing, and visualizing user
 
 ---
 
-## � Multi-Source Integration
+## 🔗 Multi-Source Integration
 
 The system supports multiple feedback sources that are combined into a unified processing pipeline:
 
 | Source | Type | Description |
 |--------|------|-------------|
 | **Google Play Store** | Live API | Fetches up to 1000 reviews in real-time using `google-play-scraper` |
+| **HuggingFace Dataset** | Public Dataset | Loads 200 reviews from `amazon_polarity` dataset via `datasets` library |
 | **CSV Upload** | Batch File | Imports feedback from `data/external_feedback.csv` (optional) |
+
+### Why HuggingFace Dataset?
+
+The HuggingFace integration serves multiple purposes:
+- **Scalability Demonstration**: Shows the pipeline can handle large-scale external data
+- **Benchmarking**: Provides standardized review data to test sentiment analysis accuracy
+- **Development & Testing**: Ensures consistent test data when Google Play API is unavailable
 
 ### How Sources Are Merged
 
 1. **Fetch Phase**: Each source is fetched independently
    - Google Play: Live API call via `src/fetchers/google_play.py`
+   - HuggingFace: Dataset load via `src/fetchers/hf_reviews.py`
    - CSV: File load via `src/fetchers/csv_loader.py`
 
 2. **Combine Phase**: DataFrames are merged using `pandas.concat()`
    - `ignore_index=True` ensures clean row indices
-   - `source` column preserved (`google_play` or `CSV Upload`)
+   - `source` column preserved (`google_play`, `HuggingFace Dataset`, or `CSV Upload`)
 
 3. **Graceful Handling**:
-   - If CSV file doesn't exist, pipeline continues with Google Play data only
-   - If Google Play fails, pipeline continues with CSV data only
+   - If any source fails, pipeline continues with remaining sources
+   - If CSV file doesn't exist, it is skipped silently
    - Record counts are printed per source for transparency
 
 ### CSV File Format
@@ -172,6 +182,7 @@ feedback-intelligence-system/
 ├── src/
 │   ├── fetchers/
 │   │   ├── google_play.py       # Google Play Store scraper
+│   │   ├── hf_reviews.py        # HuggingFace dataset loader
 │   │   └── csv_loader.py        # CSV file loader
 │   │
 │   ├── processing/
@@ -276,12 +287,15 @@ Feedback Intelligence System
 Fetching Google Play reviews...
   Fetched 1000 Google Play reviews
 Fetching CSV feedback...
-  Fetched 150 CSV records
+  Fetched 1000 CSV records
+Fetching HuggingFace dataset reviews...
+  Fetched 200 HuggingFace records
 
 Records fetched per source:
   - Google Play: 1000
-  - CSV: 150
-Total feedback collected: 1150
+  - CSV: 1000
+  - HuggingFace: 200
+Total feedback collected: 2200
 
 Processing feedback...
   Initializing sentiment analyzer...
@@ -290,10 +304,10 @@ Processing feedback...
   Running Transformer sentiment analysis...
   Categorizing feedback...
   Calculating priority scores...
-Processing complete. 1150 records processed.
+Processing complete. 2200 records processed.
 
 Storing to database...
-  Stored 1150 records to database
+  Stored 2200 records to database
 
 Saved processed data to data/processed_feedback_20260224_143052.csv
 
@@ -358,7 +372,7 @@ CREATE TABLE feedback (
 | Feature | Description |
 |---------|-------------|
 | **Date Range Filter** | Filter feedback by date period |
-| **Source Filter** | Filter by data source (google_play, CSV Upload) |
+| **Source Filter** | Filter by data source (google_play, HuggingFace Dataset, CSV Upload) |
 | **Sentiment Filter** | Filter by positive/negative/neutral |
 | **Metrics Cards** | Total count, avg sentiment, positive %, negative % |
 | **Sentiment Pie Chart** | Visual distribution of sentiment labels |
@@ -398,7 +412,6 @@ Reviews are distributed across the last 7 days using `df.index % 7` to demonstra
 
 | Limitation | Details |
 |------------|---------|
-| **Single Data Source** | Currently only fetches from Google Play Store |
 | **English Only** | Sentiment models trained on English text |
 | **Keyword Categorization** | Simple keyword matching; no ML-based classification |
 | **No Real-time Updates** | Batch processing only; no streaming |

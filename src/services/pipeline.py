@@ -11,6 +11,7 @@ import pandas as pd
 
 from fetchers.google_play import fetch_google_reviews
 from fetchers.csv_loader import load_feedback_from_csv
+from fetchers.hf_reviews import fetch_hf_reviews
 from processing.cleaner import clean_text
 from processing.sentiment import SentimentAnalyzer
 from processing.categorizer import categorize_feedback
@@ -57,10 +58,23 @@ def fetch_all_feedback() -> pd.DataFrame:
     else:
         print(f"  CSV file not found: {EXTERNAL_FEEDBACK_CSV} (skipping)")
     
+    # Fetch HuggingFace reviews
+    print("Fetching HuggingFace dataset reviews...")
+    hf_count = 0
+    try:
+        hf_reviews = fetch_hf_reviews(limit=200)
+        if not hf_reviews.empty:
+            hf_count = len(hf_reviews)
+            all_data.append(hf_reviews)
+            print(f"  Fetched {hf_count} HuggingFace records")
+    except Exception as e:
+        print(f"  Error fetching HuggingFace reviews: {e}")
+    
     # Print summary
     print(f"\nRecords fetched per source:")
     print(f"  - Google Play: {gp_count}")
     print(f"  - CSV: {csv_count}")
+    print(f"  - HuggingFace: {hf_count}")
     
     # Combine all data
     if all_data:

@@ -5,6 +5,7 @@ seaborn
 google-play-scraper
 nltk
 transformers
+datasets
 torch
 streamlit
 reportlab
