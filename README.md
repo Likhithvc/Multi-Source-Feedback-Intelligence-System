@@ -13,13 +13,13 @@
 
 ---
 
-A production-ready feedback intelligence pipeline that collects user reviews from Google Play Store, performs sentiment analysis using both rule-based and transformer models, categorizes feedback, calculates priority scores, and generates actionable insights through an interactive dashboard and PDF reports.
+A production-ready feedback intelligence pipeline that collects user reviews from multiple sources (Google Play Store and external CSV uploads), performs sentiment analysis using both rule-based and transformer models, categorizes feedback, calculates priority scores, and generates actionable insights through an interactive dashboard and PDF reports.
 
 <br>
 
 ## 🚀 Overview
 
-This system automates the process of collecting, analyzing, and visualizing user feedback at scale. It fetches reviews from Google Play Store, applies natural language processing techniques to understand sentiment and categorize issues, then prioritizes feedback based on negativity, frequency, and recency. The results are stored in a SQLite database, exported to CSV, and visualized through an interactive Streamlit dashboard.
+This system automates the process of collecting, analyzing, and visualizing user feedback at scale. It fetches reviews from Google Play Store and imports feedback from external CSV files, applies natural language processing techniques to understand sentiment and categorize issues, then prioritizes feedback based on negativity, frequency, and recency. The results are stored in a SQLite database, exported to CSV, and visualized through an interactive Streamlit dashboard.
 
 **Use Cases:**
 - Product managers tracking user sentiment trends
@@ -36,6 +36,8 @@ This system automates the process of collecting, analyzing, and visualizing user
 | Feature | Description |
 |---------|-------------|
 | **Google Play Store Integration** | Fetches up to 1000 reviews per run using the official scraper API |
+| **CSV Upload Support** | Import feedback from external CSV files for batch processing |
+| **Multi-Source Ingestion** | Combines data from all sources using pandas.concat() with proper source tracking |
 | **Dual Sentiment Analysis** | Combines NLTK VADER (fast, rule-based) with HuggingFace DistilBERT (accurate, transformer-based) |
 | **Keyword-Based Categorization** | Classifies feedback into Bug, Feature Request, Performance, UI/UX, or Other |
 | **Priority Scoring Algorithm** | Multiplicative decay formula prioritizing recent, negative, frequent issues |
@@ -56,26 +58,32 @@ This system automates the process of collecting, analyzing, and visualizing user
 │                        FEEDBACK INTELLIGENCE SYSTEM                  │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                      │
-│   ┌──────────────┐                                                   │
-│   │ Google Play  │                                                   │
-│   │   Store API  │                                                   │
-│   └──────┬───────┘                                                   │
-│          │                                                           │
+│   ┌──────────────┐    ┌──────────────┐                               │
+│   │ Google Play  │    │  CSV Upload  │                               │
+│   │  (Live API)  │    │   (Batch)    │                               │
+│   └──────┬───────┘    └──────┬───────┘                               │
+│          │                   │                                       │
+│          └─────────┬─────────┘                                       │
+│                    ▼                                                 │
+│          ┌──────────────────┐                                        │
+│          │  pandas.concat() │                                        │
+│          │  (Merge Sources) │                                        │
+│          └────────┬─────────┘                                        │
+│                   ▼                                                  │
+│   ┌──────────────┐    ┌──────────────┐    ┌──────────────┐          │
+│   │   Cleaner    │───▶│  Sentiment   │───▶│  Categorizer │          │
+│   │  (text prep) │    │  (VADER +    │    │  (keywords)  │          │
+│   └──────────────┘    │  Transformer)│    └──────┬───────┘          │
+│                       └──────────────┘           │                   │
+│                                                  │                   │
+│          ┌───────────────────────────────────────┘                   │
 │          ▼                                                           │
 │   ┌──────────────┐    ┌──────────────┐    ┌──────────────┐          │
-│   │   Fetcher    │───▶│   Cleaner    │───▶│  Sentiment   │          │
-│   │  (google_play)│    │  (text prep) │    │  (VADER +    │          │
-│   └──────────────┘    └──────────────┘    │  Transformer)│          │
-│                                            └──────┬───────┘          │
-│                                                   │                  │
-│          ┌────────────────────────────────────────┘                  │
-│          ▼                                                           │
-│   ┌──────────────┐    ┌──────────────┐    ┌──────────────┐          │
-│   │ Categorizer  │───▶│   Priority   │───▶│    Trend     │          │
-│   │  (keywords)  │    │   Scoring    │    │   Analysis   │          │
+│   │   Priority   │───▶│    Trend     │───▶│   Storage    │          │
+│   │   Scoring    │    │   Analysis   │    │  (DB + CSV)  │          │
 │   └──────────────┘    └──────────────┘    └──────┬───────┘          │
-│                                                   │                  │
-│          ┌────────────────────────────────────────┘                  │
+│                                                  │                   │
+│          ┌───────────────────────────────────────┘                   │
 │          ▼                                                           │
 │   ┌──────────────┐    ┌──────────────┐    ┌──────────────┐          │
 │   │   SQLite     │    │     CSV      │    │     PDF      │          │
@@ -114,6 +122,43 @@ This system automates the process of collecting, analyzing, and visualizing user
 
 ---
 
+## � Multi-Source Integration
+
+The system supports multiple feedback sources that are combined into a unified processing pipeline:
+
+| Source | Type | Description |
+|--------|------|-------------|
+| **Google Play Store** | Live API | Fetches up to 1000 reviews in real-time using `google-play-scraper` |
+| **CSV Upload** | Batch File | Imports feedback from `data/external_feedback.csv` (optional) |
+
+### How Sources Are Merged
+
+1. **Fetch Phase**: Each source is fetched independently
+   - Google Play: Live API call via `src/fetchers/google_play.py`
+   - CSV: File load via `src/fetchers/csv_loader.py`
+
+2. **Combine Phase**: DataFrames are merged using `pandas.concat()`
+   - `ignore_index=True` ensures clean row indices
+   - `source` column preserved (`google_play` or `CSV Upload`)
+
+3. **Graceful Handling**:
+   - If CSV file doesn't exist, pipeline continues with Google Play data only
+   - If Google Play fails, pipeline continues with CSV data only
+   - Record counts are printed per source for transparency
+
+### CSV File Format
+
+External CSV files must have these columns:
+```
+content,rating,date
+"Great app!",5,2026-02-20
+"Crashes often",1,2026-02-19
+```
+
+<br>
+
+---
+
 ## 📁 Folder Structure
 
 ```
@@ -127,7 +172,6 @@ feedback-intelligence-system/
 ├── src/
 │   ├── fetchers/
 │   │   ├── google_play.py       # Google Play Store scraper
-│   │   ├── apple_store.py       # Apple App Store scraper (available)
 │   │   └── csv_loader.py        # CSV file loader
 │   │
 │   ├── processing/
@@ -156,6 +200,7 @@ feedback-intelligence-system/
 │   └── app.py                   # Streamlit dashboard
 │
 └── data/
+    ├── external_feedback.csv    # External CSV input (optional)
     ├── feedback.db              # SQLite database (generated)
     ├── processed_feedback_*.csv # Exported CSV files (generated)
     └── weekly_report_*.pdf      # PDF reports (generated)
@@ -230,7 +275,13 @@ Feedback Intelligence System
 ==================================================
 Fetching Google Play reviews...
   Fetched 1000 Google Play reviews
-Total feedback collected: 1000
+Fetching CSV feedback...
+  Fetched 150 CSV records
+
+Records fetched per source:
+  - Google Play: 1000
+  - CSV: 150
+Total feedback collected: 1150
 
 Processing feedback...
   Initializing sentiment analyzer...
@@ -239,10 +290,10 @@ Processing feedback...
   Running Transformer sentiment analysis...
   Categorizing feedback...
   Calculating priority scores...
-Processing complete. 1000 records processed.
+Processing complete. 1150 records processed.
 
 Storing to database...
-  Stored 1000 records to database
+  Stored 1150 records to database
 
 Saved processed data to data/processed_feedback_20260224_143052.csv
 
@@ -307,7 +358,7 @@ CREATE TABLE feedback (
 | Feature | Description |
 |---------|-------------|
 | **Date Range Filter** | Filter feedback by date period |
-| **Source Filter** | Filter by data source (google_play, etc.) |
+| **Source Filter** | Filter by data source (google_play, CSV Upload) |
 | **Sentiment Filter** | Filter by positive/negative/neutral |
 | **Metrics Cards** | Total count, avg sentiment, positive %, negative % |
 | **Sentiment Pie Chart** | Visual distribution of sentiment labels |
@@ -360,7 +411,6 @@ Reviews are distributed across the last 7 days using `df.index % 7` to demonstra
 
 ## 🔮 Future Improvements
 
-- [ ] Add Apple App Store fetcher integration
 - [ ] Implement Reddit/Twitter social media fetchers
 - [ ] Add ML-based topic modeling (LDA, BERTopic)
 - [ ] Implement real-time streaming pipeline

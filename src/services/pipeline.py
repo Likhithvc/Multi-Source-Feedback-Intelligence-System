@@ -4,11 +4,13 @@ Pipeline service module.
 Orchestrates the feedback intelligence pipeline.
 """
 
+import os
 from datetime import datetime
 
 import pandas as pd
 
 from fetchers.google_play import fetch_google_reviews
+from fetchers.csv_loader import load_feedback_from_csv
 from processing.cleaner import clean_text
 from processing.sentiment import SentimentAnalyzer
 from processing.categorizer import categorize_feedback
@@ -20,22 +22,45 @@ from services.report_service import generate_pdf_report
 
 # Configuration
 GOOGLE_PLAY_APP_ID = "com.whatsapp"  # Example app
+EXTERNAL_FEEDBACK_CSV = "data/external_feedback.csv"
 
 
 def fetch_all_feedback() -> pd.DataFrame:
-    """Fetch feedback from Google Play Store."""
+    """Fetch feedback from multiple sources: Google Play Store and CSV files."""
     all_data = []
     
     # Fetch Google Play reviews
     print("Fetching Google Play reviews...")
+    gp_count = 0
     try:
         gp_reviews = fetch_google_reviews(GOOGLE_PLAY_APP_ID, count=1000)
         if not gp_reviews.empty:
             gp_reviews = gp_reviews.rename(columns={'review_id': 'id'})
+            gp_count = len(gp_reviews)
             all_data.append(gp_reviews)
-            print(f"  Fetched {len(gp_reviews)} Google Play reviews")
+            print(f"  Fetched {gp_count} Google Play reviews")
     except Exception as e:
         print(f"  Error fetching Google Play reviews: {e}")
+    
+    # Fetch CSV feedback
+    print("Fetching CSV feedback...")
+    csv_count = 0
+    if os.path.exists(EXTERNAL_FEEDBACK_CSV):
+        try:
+            csv_feedback = load_feedback_from_csv(EXTERNAL_FEEDBACK_CSV)
+            if not csv_feedback.empty:
+                csv_count = len(csv_feedback)
+                all_data.append(csv_feedback)
+                print(f"  Fetched {csv_count} CSV records")
+        except Exception as e:
+            print(f"  Error loading CSV feedback: {e}")
+    else:
+        print(f"  CSV file not found: {EXTERNAL_FEEDBACK_CSV} (skipping)")
+    
+    # Print summary
+    print(f"\nRecords fetched per source:")
+    print(f"  - Google Play: {gp_count}")
+    print(f"  - CSV: {csv_count}")
     
     # Combine all data
     if all_data:
