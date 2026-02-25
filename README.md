@@ -424,7 +424,31 @@ Reviews are distributed across the last 7 days using `df.index % 7` to demonstra
 
 ---
 
-## 📄 License
+## � Dashboard Screenshots
+
+### 1️⃣ Overview Dashboard
+
+<p align="center">
+  <img src="Screenshots/s1.png" width="800">
+</p>
+
+### 2️⃣ Sentiment Analysis View
+
+<p align="center">
+  <img src="Screenshots/s2.png" width="800">
+</p>
+
+### 3️⃣ Trend & Priority Analysis
+
+<p align="center">
+  <img src="Screenshots/s3.png" width="800">
+</p>
+
+<br>
+
+---
+
+## �📄 License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
 
